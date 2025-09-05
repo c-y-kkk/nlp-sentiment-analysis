@@ -36,7 +36,7 @@ if uploaded_file is not None:
 else:
     file_text = ""
 
-review_text = st.text_area("✍️ Enter your review here:", value=file_text, height=210).strip()
+review_text = st.text_area("✍️ Enter your review here:", value=file_text, width=300).strip()
 
 if st.button("Predict Sentiment"):
     if not model_choice:
@@ -65,7 +65,6 @@ if st.button("Predict Sentiment"):
         # SVM
         if "SVM" in model_choice:
             svm_pred = svm_model.predict([review_text])[0]
-            svm_pred = svm_model.predict(X_input)[0]
             if hasattr(svm_model, "decision_function"):
                 decision_value = svm_model.decision_function(X_input)[0]
                 svm_confidence = (1 / (1 + torch.exp(-torch.tensor(decision_value)))).item() * 100
