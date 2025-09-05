@@ -22,8 +22,17 @@ st.write("Type in a movie review and find out if it's **Positive** or **Negative
 
 model_choice = st.multiselect(
     "Choose model(s):",
-    options=["Naive Bayes", "SVM", "BERT", "Both"],
+    options=["Naive Bayes", "SVM", "BERT"],
 )
+
+st.write("Or upload a text file: ")
+uploaded_file = st.file_uploader("", type=["txt"])
+
+# Combine uploaded file and text area
+if uploaded_file is not None:
+    file_text = uploaded_file.read().decode("utf-8")
+else:
+    file_text = ""
 
 user_input = st.text_area("✍️ Enter your review here:", height=150)
 
