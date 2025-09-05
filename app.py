@@ -37,7 +37,7 @@ else:
 user_input = st.text_area("✍️ Enter your review here:", height=150)
 
 if st.button("Predict Sentiment"):
-    if user_input.strip():
+    if user_input.strip() or file_text.strip():
         results = {}
 
         if "Naive Bayes" in model_choice:
