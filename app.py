@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import torch
+import pandas as pd
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 @st.cache_resource
@@ -28,46 +29,68 @@ model_choice = st.multiselect(
 st.write("Or upload a text file: ")
 uploaded_file = st.file_uploader("", type=["txt"])
 
-# Combine uploaded file and text area
 if uploaded_file is not None:
     file_text = uploaded_file.read().decode("utf-8")
 else:
     file_text = ""
 
-user_input = st.text_area("✍️ Enter your review here:", height=150)
+review_text = st.text_area("✍️ Enter your review here:", value=file_text, height=150).strip()
 
 if st.button("Predict Sentiment"):
     if not model_choice:
         st.warning("⚠️ Please select at least one model.")
-        
-    if user_input.strip() or file_text.strip():
-        results = {}
+    elif not review_text:
+        st.warning("⚠️ Please enter or upload a review before clicking Predict.")
+    else: 
+        results = []
+        labels = {"pos": "Positive", "neg": "Negative", 1: "Positive", 0: "Negative"}
 
+        # NB
         if "Naive Bayes" in model_choice:
-            X_input = nb_vectorizer.transform([user_input])
+            X_input = nb_vectorizer.transform([review_text])
             nb_pred = nb_model.predict(X_input)[0]
-            results["Naive Bayes"] = nb_pred
+            if hasattr(nb_model, "predict_proba"):
+                nb_prob = nb_model.predict_proba(X_input)[0]
+                nb_confidence = max(nb_prob) * 100
+            else:
+                nb_confidence = None
+            results.append({
+                "model": "Naive Bayes",
+                "prediction": labels.get(nb_pred, "Unknown"),
+                "confidence": f"{nb_confidence:.2f}%" if nb_confidence else "N/A"
+            })
 
+        # SVM
         if "SVM" in model_choice:
-            svm_pred = svm_model.predict([user_input])[0]  # raw text is fine
-            results["SVM"] = svm_pred
-        
+            X_input = nb_vectorizer.transform([review_text])
+            svm_pred = svm_model.predict(X_input)[0]
+            if hasattr(svm_model, "decision_function"):
+                decision_value = svm_model.decision_function(X_input)[0]
+                svm_confidence = (1 / (1 + torch.exp(-torch.tensor(decision_value)))).item() * 100
+            else:
+                svm_confidence = None
+            results.append({
+                "model": "SVM",
+                "prediction": labels.get(svm_pred, "Unknown"),
+                "confidence": f"{svm_confidence:.2f}%" if svm_confidence else "N/A"
+            })
+
+        # BERT
         if "BERT" in model_choice:
-            inputs = tokenizer(user_input, return_tensors="pt", truncation=True, padding=True)
+            inputs = tokenizer(review_text, return_tensors="pt", truncation=True, padding=True)
             outputs = bert_model(**inputs)
             logits = outputs.logits
             pred_class = torch.argmax(logits, dim=1).item()
-            # Assuming 1 = positive, 0 = negative
-            bert_pred = "pos" if pred_class == 1 else "neg"
-            results["BERT"] = bert_pred
+            probs = torch.nn.functional.softmax(logits, dim=1)
+            bert_confidence = probs[0][pred_class].item() * 100
+            results.append({
+                "model": "BERT",
+                "prediction": labels.get(pred_class, "Unknown"),
+                "confidence": f"{bert_confidence:.2f}%"
+            })
 
-        for model_name, pred in results.items():
-            if pred == "pos":
-                st.success(f"✅ {model_name} Prediction: Positive Review")
-            else:
-                st.error(f"❌ {model_name} Prediction: Negative Review")
-    else:
-        st.warning("⚠️ Please enter a review before clicking Predict.")
+        df = pd.DataFrame(results)
+        st.table(df)
 
 st.markdown("---")
 st.caption("Built with Streamlit · Naive Bayes · SVM")
