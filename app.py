@@ -37,6 +37,9 @@ else:
 user_input = st.text_area("✍️ Enter your review here:", height=150)
 
 if st.button("Predict Sentiment"):
+    if not model_choice:
+        st.warning("⚠️ Please select at least one model.")
+        
     if user_input.strip() or file_text.strip():
         results = {}
 
