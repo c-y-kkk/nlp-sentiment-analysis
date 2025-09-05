@@ -27,7 +27,7 @@ model_choice = st.multiselect(
     options=["Naive Bayes", "SVM", "BERT"],
 )
 
-st.write("Or upload a text file: ")
+st.write("Upload a text file or enter a review: ")
 uploaded_file = st.file_uploader("", type=["txt"])
 
 # upload txt file
