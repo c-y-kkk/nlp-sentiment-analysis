@@ -36,7 +36,7 @@ if uploaded_file is not None:
 else:
     file_text = ""
 
-review_text = st.text_area("✍️ Enter your review here:", value=file_text, height=300).strip()
+review_text = st.text_area("✍️ Enter your review here:", value=file_text, height=230).strip()
 
 if st.button("Predict Sentiment"):
     if not model_choice:
@@ -58,7 +58,7 @@ if st.button("Predict Sentiment"):
                 nb_confidence = None
             results.append({
                 "model": "Naive Bayes",
-                "prediction": labels.get(nb_pred, "Unknown"),
+                "prediction": ("✅ " if labels.get(nb_pred) == "Positive" else "❌ ") ,
                 "confidence": f"{nb_confidence:.2f}%" if nb_confidence else "N/A"
             })
 
@@ -72,7 +72,7 @@ if st.button("Predict Sentiment"):
                 svm_confidence = None
             results.append({
                 "model": "SVM",
-                "prediction": labels.get(svm_pred, "Unknown"),
+                "prediction": ("✅ " if labels.get(svm_pred) == "Positive" else "❌ "),
                 "confidence": f"{svm_confidence:.2f}%" if svm_confidence else "N/A"
             })
 
@@ -86,12 +86,13 @@ if st.button("Predict Sentiment"):
             bert_confidence = probs[0][pred_class].item() * 100
             results.append({
                 "model": "BERT",
-                "prediction": labels.get(pred_class, "Unknown"),
+                "prediction": ("✅ " if labels.get(pred_class) == "Positive" else "❌ "),
                 "confidence": f"{bert_confidence:.2f}%"
             })
 
         # tbl
         df = pd.DataFrame(results)
+        df.index = df.index + 1
         st.table(df)
 
 st.markdown("---")
