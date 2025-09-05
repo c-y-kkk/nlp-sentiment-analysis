@@ -8,7 +8,7 @@ def load_models():
     nb_model = joblib.load("models/naive_bayes.pkl")
     nb_vectorizer = joblib.load("models/NBvectorizer.pkl")
     svm_model = joblib.load("models/svm.pkl") 
-    bert_model_path = "lmdb_bert_model"
+    bert_model_path = "models/lmdb_bert_model"
     bert_model =  AutoModelForSequenceClassification.from_pretrained(bert_model_path)
     tokenizer = AutoTokenizer.from_pretrained(bert_model_path)
     return nb_model, nb_vectorizer, svm_model, bert_model, tokenizer
