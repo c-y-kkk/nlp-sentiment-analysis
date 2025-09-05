@@ -20,9 +20,9 @@ st.set_page_config(page_title="Movie Review Sentiment", page_icon="🎬", layout
 st.title("🎬 Movie Review Sentiment Analysis")
 st.write("Type in a movie review and find out if it's **Positive** or **Negative** using different models.")
 
-model_choice = st.radio(
-    "Choose a model:",
-    ("Naive Bayes", "SVM", "BERT", "Both"),
+model_choice = st.multiselect(
+    "Choose model(s):",
+    options=["Naive Bayes", "SVM", "BERT", "Both"],
     horizontal=True
 )
 
@@ -32,12 +32,12 @@ if st.button("Predict Sentiment"):
     if user_input.strip():
         results = {}
 
-        if model_choice in ("Naive Bayes", "Both"):
+        if model_choice in ("Naive Bayes"):
             X_input = nb_vectorizer.transform([user_input])
             nb_pred = nb_model.predict(X_input)[0]
             results["Naive Bayes"] = nb_pred
 
-        if model_choice in ("SVM", "Both"):
+        if model_choice in ("SVM"):
             svm_pred = svm_model.predict([user_input])[0]  # raw text is fine
             results["SVM"] = svm_pred
         
