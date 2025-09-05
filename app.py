@@ -31,16 +31,16 @@ if st.button("Predict Sentiment"):
     if user_input.strip():
         results = {}
 
-        if model_choice in ("Naive Bayes"):
+        if "Naive Bayes" in model_choice:
             X_input = nb_vectorizer.transform([user_input])
             nb_pred = nb_model.predict(X_input)[0]
             results["Naive Bayes"] = nb_pred
 
-        if model_choice in ("SVM"):
+        if "SVM" in model_choice:
             svm_pred = svm_model.predict([user_input])[0]  # raw text is fine
             results["SVM"] = svm_pred
         
-        if model_choice in ("BERT"):
+        if "BERT" in model_choice:
             inputs = tokenizer(user_input, return_tensors="pt", truncation=True, padding=True)
             outputs = bert_model(**inputs)
             logits = outputs.logits
