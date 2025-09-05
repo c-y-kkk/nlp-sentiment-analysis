@@ -5,6 +5,7 @@ import pandas as pd
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 @st.cache_resource
+# load models func
 def load_models():
     nb_model = joblib.load("models/naive_bayes.pkl")
     nb_vectorizer = joblib.load("models/NBvectorizer.pkl")
@@ -29,12 +30,13 @@ model_choice = st.multiselect(
 st.write("Or upload a text file: ")
 uploaded_file = st.file_uploader("", type=["txt"])
 
+# upload txt file
 if uploaded_file is not None:
     file_text = uploaded_file.read().decode("utf-8")
 else:
     file_text = ""
 
-review_text = st.text_area("✍️ Enter your review here:", value=file_text, height=150).strip()
+review_text = st.text_area("✍️ Enter your review here:", value=file_text, height=210).strip()
 
 if st.button("Predict Sentiment"):
     if not model_choice:
@@ -62,7 +64,7 @@ if st.button("Predict Sentiment"):
 
         # SVM
         if "SVM" in model_choice:
-            X_input = nb_vectorizer.transform([review_text])
+            svm_pred = svm_model.predict([review_text])[0]
             svm_pred = svm_model.predict(X_input)[0]
             if hasattr(svm_model, "decision_function"):
                 decision_value = svm_model.decision_function(X_input)[0]
@@ -89,8 +91,9 @@ if st.button("Predict Sentiment"):
                 "confidence": f"{bert_confidence:.2f}%"
             })
 
+        # tbl
         df = pd.DataFrame(results)
         st.table(df)
 
 st.markdown("---")
-st.caption("Built with Streamlit · Naive Bayes · SVM")
+st.caption("Built with Streamlit · Naive Bayes · SVM · BERT")
