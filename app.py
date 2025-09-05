@@ -23,7 +23,6 @@ st.write("Type in a movie review and find out if it's **Positive** or **Negative
 model_choice = st.multiselect(
     "Choose model(s):",
     options=["Naive Bayes", "SVM", "BERT", "Both"],
-    horizontal=True
 )
 
 user_input = st.text_area("✍️ Enter your review here:", height=150)
